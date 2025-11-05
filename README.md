@@ -228,5 +228,3 @@ MIT License - feel free to use this in your projects!
 - 💬 **Questions**: Contact [@muthuishere](https://github.com/muthuishere)
 
 ---
-
-⭐ **Star this repo** if it helps you build secure MCP servers!
