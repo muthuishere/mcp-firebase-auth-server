@@ -45,6 +45,7 @@ builder:
 env:
   clear:
     AUTH_SERVER_PORT: <%= ENV["AUTH_SERVER_PORT"] %>
+    MCP_SERVER_BASE_URL: <%= ENV["MCP_SERVER_BASE_URL"] %>
   secret:
     - MCP_AUTH_SERVER_URL
     - FIREBASE_PROJECT_ID

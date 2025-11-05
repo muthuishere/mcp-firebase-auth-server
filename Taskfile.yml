@@ -3,18 +3,12 @@ version: '3'
 dotenv: ['.env']
 
 tasks:
-  build:    
-    desc: Build Application
-    cmds:
-      - echo "Starting to build app"
-      - ./gradlew build
-    silent: false
 
-  run:
-    desc: Run with log file
-    deps: [build]
+
+  dev:
+    desc: Run dev mode
     cmds:
-      - ./gradlew bootRun --info >app.log 2>&1
+      - ./gradlew bootRun 
 
   docker-run:
     desc: Run application using Docker Compose (always fast)
@@ -30,7 +24,9 @@ tasks:
 
   kamal-deploy:
     desc: Deploy application using Kamal
+    dotenv: ['.env.prod']
     cmds:
+      - echo ${MCP_AUTH_SERVER_URL}
       - kamal deploy
 
 

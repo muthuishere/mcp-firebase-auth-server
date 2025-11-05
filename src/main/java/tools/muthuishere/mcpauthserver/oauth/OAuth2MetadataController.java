@@ -92,27 +92,27 @@ public class OAuth2MetadataController {
         return ResponseEntity.ok(metadata);
     }
 
-    /**
-     * OAuth 2.0 Protected Resource Metadata for MCP
-     * As per RFC 8707: https://tools.ietf.org/html/rfc8707
-     */
-    @GetMapping(value = "/.well-known/oauth-protected-resource/mcp/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> protectedResourceMetadata() {
-        String baseUrl = serverUrlsConfig.getIssuerUrl();
-        Map<String, Object> metadata = new java.util.HashMap<>();
-        metadata.put("resource_name", "Firebase Auth Proxy");
-        metadata.put("resource", serverUrlsConfig.getMcpResourceUrl());
-        metadata.put("scopes_supported", new String[]{"read:email"});
-        metadata.put("authorization_servers", new String[]{baseUrl + "/login/oauth"});
-        metadata.put("authorization_endpoint", serverUrlsConfig.getAuthorizationEndpoint());
-        metadata.put("token_endpoint", serverUrlsConfig.getTokenEndpoint());
-        metadata.put("bearer_methods_supported", new String[]{"header"});
-        metadata.put("resource_documentation", "https://spec.modelcontextprotocol.io/specification/server/authentication/");
-        metadata.put("revocation_endpoint", baseUrl + "/oauth2/revoke");
-        metadata.put("introspection_endpoint", baseUrl + "/oauth2/introspect");
+    // /**
+    //  * OAuth 2.0 Protected Resource Metadata for MCP
+    //  * As per RFC 8707: https://tools.ietf.org/html/rfc8707
+    //  */
+    // @GetMapping(value = "/.well-known/oauth-protected-resource/mcp/", produces = MediaType.APPLICATION_JSON_VALUE)
+    // public ResponseEntity<Map<String, Object>> protectedResourceMetadata() {
+    //     String baseUrl = serverUrlsConfig.getIssuerUrl();
+    //     Map<String, Object> metadata = new java.util.HashMap<>();
+    //     metadata.put("resource_name", "Firebase Auth Proxy");
+    //     metadata.put("resource", serverUrlsConfig.getMcpResourceUrl());
+    //     metadata.put("scopes_supported", new String[]{"read:email"});
+    //     metadata.put("authorization_servers", new String[]{baseUrl + "/login/oauth"});
+    //     metadata.put("authorization_endpoint", serverUrlsConfig.getAuthorizationEndpoint());
+    //     metadata.put("token_endpoint", serverUrlsConfig.getTokenEndpoint());
+    //     metadata.put("bearer_methods_supported", new String[]{"header"});
+    //     metadata.put("resource_documentation", "https://spec.modelcontextprotocol.io/specification/server/authentication/");
+    //     metadata.put("revocation_endpoint", baseUrl + "/oauth2/revoke");
+    //     metadata.put("introspection_endpoint", baseUrl + "/oauth2/introspect");
         
-        return ResponseEntity.ok(metadata);
-    }
+    //     return ResponseEntity.ok(metadata);
+    // }
 
     /**
      * JWKS endpoint for JWT token verification
@@ -169,9 +169,7 @@ public class OAuth2MetadataController {
     public ResponseEntity<Map<String, Object>> urlsConfig() {
         Map<String, Object> config = new java.util.HashMap<>();
         config.put("authServerBaseUrl", serverUrlsConfig.getAuthServerBaseUrl());
-        config.put("mcpResourceBaseUrl", serverUrlsConfig.getMcpResourceBaseUrl());
         config.put("defaultClientRedirectUrl", serverUrlsConfig.getDefaultClientRedirectUrl());
-        config.put("testClientRedirectUrl", serverUrlsConfig.getTestClientRedirectUrl());
         config.put("authorizationEndpoint", serverUrlsConfig.getAuthorizationEndpoint());
         config.put("tokenEndpoint", serverUrlsConfig.getTokenEndpoint());
         config.put("refreshTokenEndpoint", serverUrlsConfig.getRefreshTokenEndpoint());

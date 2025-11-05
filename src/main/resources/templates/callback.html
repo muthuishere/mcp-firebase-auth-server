@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OAuth Callback Result</title>
+    <title>Firebase MCP Proxy - OAuth Callback</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -98,7 +99,24 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔐 OAuth Callback Result</h1>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #1a73e8; margin-bottom: 10px; font-size: 24px; font-weight: 300;">
+                <i class="fas fa-fire" style="margin-right: 10px; color: #f4b400;"></i>
+                MCP Auth Server Proxy for Firebase
+            </h1>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 8px; font-size: 14px; color: #5f6368; margin-bottom: 10px;">
+                <p style="margin: 0;">
+                    Created by <strong>Muthukumaran Navaneethakrishnan</strong> |
+                    <a href="https://github.com/muthuishere/mcp-firebase-auth-server" target="_blank" style="color: #1a73e8; text-decoration: none;">
+                        <i class="fab fa-github"></i> Source Code
+                    </a> |
+                    <a href="https://www.linkedin.com/in/muthuishere/" target="_blank" style="color: #1a73e8; text-decoration: none;">
+                        <i class="fab fa-linkedin"></i> Connect with me
+                    </a>
+                </p>
+            </div>
+        </div>
+        <h2>🔐 OAuth Callback Result</h2>
         
         <div id="errorSection" class="error hidden">
             <h3>❌ OAuth Error</h3>
@@ -137,8 +155,8 @@
             </div>
             
             <div style="margin: 10px 0;">
-                <label for="redirectUri">Redirect URI:</label><br>
-                <input type="text" id="redirectUri" value="http://localhost:8080/callback" style="width: 100%; padding: 8px; margin: 5px 0;">
+                <label for="redirectUri">Redirect URI:</label>
+                <input type="text" id="redirectUri" value="http://localhost:3000/callback" style="width: 100%; padding: 8px; margin: 5px 0;">
             </div>
             
             <button onclick="exchangeTokens()">🔄 Exchange for Tokens</button>
