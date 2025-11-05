@@ -1,0 +1,47 @@
+# Build artifacts
+build/
+.gradle/
+*.jar
+*.war
+bin/
+out/
+config/
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+app.log
+
+# Git
+.git/
+.gitignore
+
+# Frontend
+frontend/
+node_modules/
+
+# Documentation
+docs/
+README.md
+
+# Scripts
+scripts/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test reports
+test-results/
+reports/
+.env
+frontend

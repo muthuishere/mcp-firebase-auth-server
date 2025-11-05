@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth Proxy - Consent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .header .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        .consent-info {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .consent-info h3 {
+            margin-top: 0;
+            color: #1976D2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .consent-info .detail-item {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+        }
+        .detail-item strong {
+            color: #333;
+        }
+        .detail-item .value {
+            color: #555;
+            font-family: monospace;
+            word-break: break-all;
+            margin-top: 5px;
+        }
+        .scope-list {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .scope-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #4CAF50;
+        }
+        .scope-item i {
+            color: #4CAF50;
+            width: 20px;
+        }
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-approve {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+        .btn-approve:hover {
+            background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        .btn-deny {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+        .btn-deny:hover {
+            background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .warning i {
+            margin-right: 8px;
+        }
+        .security-notice {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #2e7d32;
+            font-size: 14px;
+        }
+        .security-notice i {
+            margin-right: 8px;
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Authorization Required</h1>
+            <p class="subtitle">A third-party application is requesting access to your account</p>
+        </div>
+
+        <!-- Current User Information -->
+        <div class="consent-info" style="background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%); border-left: 4px solid #4CAF50;">
+            <h3><i class="fas fa-user-circle"></i> Currently Signed In As</h3>
+            
+            <div class="detail-item" style="background: rgba(255, 255, 255, 0.9);">
+                <strong><i class="fas fa-envelope" style="margin-right: 8px; color: #4CAF50;"></i>Email:</strong>
+                <div class="value" th:text="${currentUserEmail}" style="color: #2e7d32; font-weight: 600;">user@example.com</div>
+            </div>
+            
+            <div class="detail-item" style="background: rgba(255, 255, 255, 0.9);">
+                <strong><i class="fas fa-user" style="margin-right: 8px; color: #4CAF50;"></i>Name:</strong>
+                <div class="value" th:text="${currentUserName}" style="color: #2e7d32; font-weight: 600;">User Name</div>
+            </div>
+            
+            <div class="detail-item" style="background: rgba(255, 255, 255, 0.9);">
+                <strong><i class="fas fa-id-badge" style="margin-right: 8px; color: #4CAF50;"></i>User ID:</strong>
+                <div class="value" th:text="${currentUserId}" style="color: #2e7d32;">user-id-123</div>
+            </div>
+        </div>
+
+        <div class="consent-info">
+            <h3><i class="fas fa-info-circle"></i> Application Details</h3>
+            
+            <div class="detail-item">
+                <strong>Client ID:</strong>
+                <div class="value" th:text="${clientId}">sample-client-id</div>
+            </div>
+            
+            <div class="detail-item">
+                <strong>Redirect URI:</strong>
+                <div class="value" th:text="${redirectUri}">https://example.com/callback</div>
+            </div>
+            
+            <div class="detail-item">
+                <strong>Requested Permissions:</strong>
+                <div class="scope-list">
+                    <div class="scope-item" th:each="scope : ${#strings.arraySplit(scope, ' ')}">
+                        <i class="fas fa-check-circle"></i>
+                        <span th:text="${scope}">read:profile</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Important:</strong> Only authorize applications you trust. This will allow the application to access your Firebase account with the specified permissions.
+        </div>
+
+        <div class="security-notice">
+            <i class="fas fa-lock"></i>
+            This authorization is secured by Firebase Auth Proxy and follows OAuth 2.0 security best practices. You can revoke this access at any time.
+        </div>
+
+        <form method="post" action="/oauth2/consent">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="client_id" th:value="${client_id}" />
+            <input type="hidden" name="redirect_uri" th:value="${redirect_uri}" />
+            <input type="hidden" name="scope" th:value="${scope}" />
+            <input type="hidden" name="state" th:value="${state}" />
+            <input type="hidden" name="csrf_token" th:value="${csrf_token}" />
+            
+            <div class="buttons">
+                <button type="submit" name="approved" value="true" class="btn btn-approve">
+                    <i class="fas fa-check"></i>
+                    Authorize
+                </button>
+                
+                <button type="submit" name="approved" value="false" class="btn btn-deny">
+                    <i class="fas fa-times"></i>
+                    Deny
+                </button>
+            </div>
+        </form>
+
+        <!-- Use Different Account Button -->
+        <div style="margin-top: 20px; text-align: center;">
+            <form method="post" action="/oauth2/logout" style="display: inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" style="background: none; border: 1px solid #ddd; color: #666; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.3s ease;">
+                    <i class="fas fa-user-times"></i>
+                    Use Different Account
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+
+services:
+  mcp-firebase-auth-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-firebase-auth-server
+    ports:
+      - "9000:9000"
+    env_file:
+      - .env
+    environment:
+      - JAVA_OPTS=-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+UseContainerSupport
+    restart: unless-stopped
+    tmpfs:
+      - /tmp

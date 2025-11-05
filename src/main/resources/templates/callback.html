@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Callback Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .info {
+            background-color: #e8f4fd;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .parameter {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .parameter strong {
+            color: #333;
+        }
+        .code {
+            font-family: monospace;
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            word-break: break-all;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        .token-exchange {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        #tokenResult {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            min-height: 50px;
+            border: 1px solid #e9ecef;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 OAuth Callback Result</h1>
+        
+        <div id="errorSection" class="error hidden">
+            <h3>❌ OAuth Error</h3>
+            <div class="parameter">
+                <strong>Error:</strong> <span id="errorCode" class="code"></span>
+            </div>
+            <div class="parameter" id="errorDescSection">
+                <strong>Description:</strong> <span id="errorDescription"></span>
+            </div>
+        </div>
+
+        <div id="successSection" class="success hidden">
+            <h3>✅ OAuth Success</h3>
+            <p>Authorization code received successfully! You can now exchange it for tokens.</p>
+        </div>
+
+        <div class="info">
+            <h3>📋 Callback Parameters</h3>
+            <div id="parametersContainer">
+                <!-- Parameters will be loaded here -->
+            </div>
+        </div>
+
+        <div id="tokenExchangeSection" class="token-exchange hidden">
+            <h3>🔄 Token Exchange</h3>
+            <p>Use the form below to exchange the authorization code for access and refresh tokens:</p>
+            
+            <div style="margin: 10px 0;">
+                <label for="clientId">Client ID:</label><br>
+                <input type="text" id="clientId" style="width: 100%; padding: 8px; margin: 5px 0;">
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label for="clientSecret">Client Secret:</label><br>
+                <input type="text" id="clientSecret" style="width: 100%; padding: 8px; margin: 5px 0;">
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label for="redirectUri">Redirect URI:</label><br>
+                <input type="text" id="redirectUri" value="http://localhost:8080/callback" style="width: 100%; padding: 8px; margin: 5px 0;">
+            </div>
+            
+            <button onclick="exchangeTokens()">🔄 Exchange for Tokens</button>
+            
+            <div id="tokenResult">
+                Token exchange results will appear here...
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="window.location.href='/'">🏠 Back to Home</button>
+            <button onclick="window.location.reload()">🔄 Refresh Page</button>
+        </div>
+    </div>
+
+    <script>
+        let authCode = null;
+        
+        // Get URL parameters
+        function getUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                code: urlParams.get('code'),
+                state: urlParams.get('state'),
+                error: urlParams.get('error'),
+                error_description: urlParams.get('error_description')
+            };
+        }
+        
+        // Initialize page
+        function initializePage() {
+            const params = getUrlParameters();
+            authCode = params.code;
+            
+            const parametersContainer = document.getElementById('parametersContainer');
+            let parametersHtml = '';
+            
+            if (params.error) {
+                document.getElementById('errorSection').classList.remove('hidden');
+                document.getElementById('errorCode').textContent = params.error;
+                if (params.error_description) {
+                    document.getElementById('errorDescription').textContent = params.error_description;
+                } else {
+                    document.getElementById('errorDescSection').classList.add('hidden');
+                }
+            }
+            
+            if (params.code) {
+                document.getElementById('successSection').classList.remove('hidden');
+                document.getElementById('tokenExchangeSection').classList.remove('hidden');
+                parametersHtml += `
+                    <div class="parameter">
+                        <strong>Authorization Code:</strong><br>
+                        <span class="code">${params.code}</span>
+                    </div>
+                `;
+            }
+            
+            if (params.state) {
+                parametersHtml += `
+                    <div class="parameter">
+                        <strong>State:</strong> <span class="code">${params.state}</span>
+                    </div>
+                `;
+            }
+            
+            if (!params.code && !params.error) {
+                parametersHtml = `
+                    <div class="parameter">
+                        <strong>No parameters received</strong><br>
+                        This might indicate an issue with the OAuth flow.
+                    </div>
+                `;
+            }
+            
+            parametersContainer.innerHTML = parametersHtml;
+        }
+        
+        async function exchangeTokens() {
+            const clientId = document.getElementById('clientId').value;
+            const clientSecret = document.getElementById('clientSecret').value;
+            const redirectUri = document.getElementById('redirectUri').value;
+            
+            if (!clientId || !clientSecret) {
+                alert('Please enter both Client ID and Client Secret');
+                return;
+            }
+            
+            try {
+                const params = new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    code: authCode,
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uri: redirectUri
+                });
+                
+                const response = await fetch('/oauth/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params.toString()
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('tokenResult').innerHTML = `
+                        <strong>✅ Token Exchange Successful!</strong><br><br>
+                        <strong>Access Token:</strong><br>
+                        <div class="code" style="margin: 5px 0; word-break: break-all;">${result.access_token || 'N/A'}</div><br>
+                        <strong>Refresh Token:</strong><br>
+                        <div class="code" style="margin: 5px 0; word-break: break-all;">${result.refresh_token || 'N/A'}</div><br>
+                        <strong>Token Type:</strong> ${result.token_type || 'N/A'}<br>
+                        <strong>Expires In:</strong> ${result.expires_in || 'N/A'} seconds<br>
+                        <strong>Scope:</strong> ${result.scope || 'N/A'}<br><br>
+                        <button onclick="getUserInfo('${result.access_token}')">👤 Get User Info</button>
+                    `;
+                } else {
+                    document.getElementById('tokenResult').innerHTML = `
+                        <strong>❌ Token Exchange Failed:</strong><br>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('tokenResult').innerHTML = `
+                    <strong>❌ Error:</strong><br>
+                    ${error.message}
+                `;
+            }
+        }
+        
+        async function getUserInfo(accessToken) {
+            try {
+                const response = await fetch('/oauth/userinfo', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                
+                const userInfo = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('tokenResult').innerHTML += `
+                        <br><br><strong>👤 User Information:</strong><br>
+                        <pre>${JSON.stringify(userInfo, null, 2)}</pre>
+                    `;
+                } else {
+                    document.getElementById('tokenResult').innerHTML += `
+                        <br><br><strong>❌ Failed to get user info:</strong><br>
+                        <pre>${JSON.stringify(userInfo, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('tokenResult').innerHTML += `
+                    <br><br><strong>❌ Error getting user info:</strong><br>
+                    ${error.message}
+                `;
+            }
+        }
+        
+        // Initialize page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>

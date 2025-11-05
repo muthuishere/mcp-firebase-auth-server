@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth Proxy - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            margin: 10px 0;
+        }
+        .token-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .copy-btn {
+            background-color: #007bff;
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background-color: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .hidden {
+            display: none;
+        }
+        
+        /* Auth Button Styles */
+        .auth-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .auth-btn-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .auth-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 160px;
+            justify-content: center;
+        }
+        
+        .auth-btn i {
+            font-size: 16px;
+        }
+        
+        .email-btn {
+            background-color: #4285f4;
+            color: white;
+        }
+        .email-btn:hover {
+            background-color: #357ae8;
+        }
+        
+        .google-btn {
+            background-color: #db4437;
+            color: white;
+        }
+        .google-btn:hover {
+            background-color: #c23321;
+        }
+        
+        .github-btn {
+            background-color: #333;
+            color: white;
+        }
+        .github-btn:hover {
+            background-color: #24292e;
+        }
+        
+        .clear-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .clear-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .help-text {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .help-text h4 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+        
+        .help-text ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        
+        .help-text a {
+            color: #1976D2;
+            text-decoration: none;
+        }
+        
+        .help-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1 style="color: #1a73e8; margin-bottom: 15px; font-size: 32px; font-weight: 300;">
+                <i class="fas fa-shield-alt" style="margin-right: 10px; color: #f4b400;"></i>
+                Secure Authentication
+            </h1>
+            <div style="padding: 15px; background: linear-gradient(135deg, #e8f0fe 0%, #f8f9fa 100%); border-radius: 12px; border-left: 4px solid #1a73e8;">
+                <p style="margin: 0; font-size: 16px; color: #5f6368; line-height: 1.5;">
+                    OAuth2 Authentication Proxy powered by Firebase
+                </p>
+            </div>
+        </div>
+        
+        <div id="initStatus" style="text-align: center; margin-bottom: 20px;"></div>
+
+        <div class="section">
+            <h3>Authentication</h3>
+            <div id="authSection" class="hidden">
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Enter your email" value="user@email.com">
+                
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter your password" value="password">
+                
+                <div class="auth-buttons">
+                    <div class="auth-btn-container">
+                        <button id="emailBtn" class="auth-btn email-btn" onclick="signInUser()">
+                            <i class="fas fa-envelope"></i>
+                            Sign in with Email
+                        </button>
+                    </div>
+                    
+                    <div class="auth-btn-container">
+                        <button id="googleBtn" class="auth-btn google-btn" onclick="signInWithGoogle()">
+                            <i class="fab fa-google"></i>
+                            Sign in with Google
+                        </button>
+                    </div>
+                    
+                    <div class="auth-btn-container">
+                        <button id="githubBtn" class="auth-btn github-btn" onclick="signInWithGithub()">
+                            <i class="fab fa-github"></i>
+                            Sign in with GitHub
+                        </button>
+                    </div>
+                    
+                    <div class="auth-btn-container">
+                        <button class="auth-btn clear-btn" onclick="clearAuth()" style="background-color: #6c757d;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="authStatus"></div>
+            </div>
+        </div>
+
+        <!-- Hidden token section for non-OAuth flows -->
+        <div id="tokenSection" class="hidden">
+            <div class="section">
+                <h3>Authentication Token</h3>
+                <p>Authentication successful!</p>
+                <div id="tokenDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js';
+
+        let app = null;
+        let auth = null;
+        let currentUser = null;
+
+        // Auto-initialize Firebase on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            autoInitializeFirebase();
+        });
+
+        async function autoInitializeFirebase() {
+            try {
+                showInitStatus('Initializing Firebase...', 'info');
+                
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const firebaseConfig = {
+                    apiKey: config.apiKey,
+                    authDomain: config.projectId + ".firebaseapp.com",
+                    projectId: config.projectId,
+                    storageBucket: config.projectId + ".appspot.com"
+                };
+                
+                // Initialize Firebase
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                
+                // Set up auth state listener
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (user) {
+                        showTokenSection(user);
+                    } else {
+                        hideTokenSection();
+                    }
+                });
+                
+                // Show auth section
+                document.getElementById('authSection').classList.remove('hidden');
+                showInitStatus('✅ Firebase initialized successfully! Please sign in below.', 'success');
+                
+            } catch (error) {
+                console.error('Failed to initialize Firebase:', error);
+                showInitStatus('❌ Failed to initialize Firebase: ' + error.message, 'error');
+            }
+        }
+
+
+
+        window.signInUser = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showAuthStatus('Please enter both email and password', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('emailBtn');
+            const originalContent = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                btn.disabled = true;
+                showAuthStatus('Signing in...', 'info');
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                showAuthStatus('✅ Signed in successfully! Proceeding with OAuth2...', 'success');
+                
+                // Automatically proceed with OAuth2 after successful sign-in
+                setTimeout(() => {
+                    proceedWithOAuth2();
+                }, 1000);
+                
+            } catch (error) {
+                showAuthStatus('❌ Sign in failed: ' + error.message, 'error');
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        };
+
+        window.signInWithGoogle = async function() {
+            const btn = document.getElementById('googleBtn');
+            const originalContent = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                btn.disabled = true;
+                showAuthStatus('Signing in with Google...', 'info');
+                
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                showAuthStatus('✅ Signed in with Google successfully! Proceeding with OAuth2...', 'success');
+                
+                // Automatically proceed with OAuth2 after successful sign-in
+                setTimeout(() => {
+                    proceedWithOAuth2();
+                }, 1000);
+                
+            } catch (error) {
+                showAuthStatus('❌ Google sign in failed: ' + error.message, 'error');
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        };
+
+        window.signInWithGithub = async function() {
+            const btn = document.getElementById('githubBtn');
+            const originalContent = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                btn.disabled = true;
+                showAuthStatus('Signing in with GitHub...', 'info');
+                
+                const provider = new GithubAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                showAuthStatus('✅ Signed in with GitHub successfully! Proceeding with OAuth2...', 'success');
+                
+                // Automatically proceed with OAuth2 after successful sign-in
+                setTimeout(() => {
+                    proceedWithOAuth2();
+                }, 1000);
+                
+            } catch (error) {
+                showAuthStatus('❌ GitHub sign in failed: ' + error.message, 'error');
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        };
+
+        window.clearAuth = async function() {
+            try {
+                if (auth && currentUser) {
+                    await signOut(auth);
+                }
+                showAuthStatus('Signed out successfully', 'success');
+            } catch (error) {
+                showAuthStatus('Sign out failed: ' + error.message, 'error');
+            }
+        };
+
+        window.proceedWithOAuth2 = async function() {
+            if (!currentUser) {
+                showAuthStatus('❌ Please sign in first', 'error');
+                return;
+            }
+            
+            try {
+                showAuthStatus('🔄 Creating secure session...', 'info');
+                
+                const idToken = await currentUser.getIdToken();
+                
+                // Create session with the server
+                const response = await fetch('/api/auth/session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        idToken: idToken
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Check if we have OAuth2 parameters in URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const clientId = urlParams.get('client_id');
+                    const redirectUri = urlParams.get('redirect_uri');
+                    
+                    if (clientId && redirectUri) {
+                        showAuthStatus('🚀 Redirecting to authorization flow...', 'success');
+                        // Small delay to show the message before redirect
+                        setTimeout(() => {
+                            window.location.href = '/oauth2/authorize' + window.location.search;
+                        }, 800);
+                    } else {
+                        showAuthStatus('✅ Authentication completed successfully!', 'success');
+                        displayToken(idToken);
+                    }
+                } else {
+                    showAuthStatus('❌ Session creation failed: ' + result.message, 'error');
+                }
+                
+            } catch (error) {
+                showAuthStatus('❌ Failed to create session: ' + error.message, 'error');
+            }
+        };
+
+        function showInitStatus(message, type) {
+            const statusDiv = document.getElementById('initStatus');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function showAuthStatus(message, type) {
+            const statusDiv = document.getElementById('authStatus');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function showTokenSection(user) {
+            // Only show token section if not in OAuth flow
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientId = urlParams.get('client_id');
+            
+            if (!clientId) {
+                document.getElementById('tokenSection').classList.remove('hidden');
+            }
+        }
+
+        function hideTokenSection() {
+            document.getElementById('tokenSection').classList.add('hidden');
+        }
+
+        function displayToken(token) {
+            const tokenDisplay = document.getElementById('tokenDisplay');
+            tokenDisplay.innerHTML = `
+                <div class="token-display">
+                    <strong>Firebase ID Token:</strong><br>
+                    ${token}
+                    <br><br>
+                    <button class="copy-btn" onclick="copyToClipboard('${token}')">
+                        <i class="fas fa-copy"></i> Copy Token
+                    </button>
+                </div>
+            `;
+        }
+
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Token copied to clipboard!');
+            });
+        };
+
+
+    </script>
+</body>
+</html>

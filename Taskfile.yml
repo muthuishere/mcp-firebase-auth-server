@@ -1,0 +1,46 @@
+version: '3'
+
+dotenv: ['.env']
+
+tasks:
+  build:    
+    desc: Build Application
+    cmds:
+      - echo "Starting to build app"
+      - ./gradlew build
+    silent: false
+
+  run:
+    desc: Run with log file
+    deps: [build]
+    cmds:
+      - ./gradlew bootRun --info >app.log 2>&1
+
+  docker-run:
+    desc: Run application using Docker Compose (always fast)
+    env:
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
+      BUILDX_EXPERIMENTAL: 1
+      BUILDX_CACHE_DIR: /tmp/.buildx-cache
+      COMPOSE_PARALLEL_LIMIT: 4
+      DOCKER_BUILD_MEMORY: 2g
+    cmds:
+      - docker compose up --build
+
+  kamal-deploy:
+    desc: Deploy application using Kamal
+    cmds:
+      - kamal deploy
+
+
+
+
+  create-secrets:
+    desc: Create GitHub secrets from .env file
+    cmds:
+      - |
+        export GITHUB_REPO="muthuishere/mcp-firebase-auth-server"
+        export GITHUB_ENVIRONMENT="dev"
+        go run secrets.go .env
+
