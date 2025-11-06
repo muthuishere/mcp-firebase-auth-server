@@ -545,13 +545,31 @@ public class OAuthController {
                 }
             }
 
+            String firebaseToken = codeInfo.getFirebaseToken();
+try {
+    // Validate Firebase token is still valid
+    firebaseAuthService.verifyToken(firebaseToken);
+} catch (Exception e) {
+    // Token expired - create fresh one
+    firebaseToken = firebaseAuthService.createCustomToken(codeInfo.getUserId());
+    System.out.println("Refreshed expired Firebase token for JWT creation");
+}
+
+// Then use the validated/fresh token for JWT
+String accessToken = oauth2Service.createJwtAccessToken(
+    codeInfo.getUserId(),
+    client_id,
+    codeInfo.getScope(),
+    firebaseToken  // ← Use validated/refreshed token
+);
+
             // Generate JWT access token
-            String accessToken = oauth2Service.createJwtAccessToken(
-                codeInfo.getUserId(),
-                client_id,
-                codeInfo.getScope(),
-                codeInfo.getFirebaseToken()
-            );
+            // String accessToken = oauth2Service.createJwtAccessToken(
+            //     codeInfo.getUserId(),
+            //     client_id,
+            //     codeInfo.getScope(),
+            //     codeInfo.getFirebaseToken()
+            // );
             String refreshToken = oauth2Service.generateRefreshToken(
                 codeInfo.getUserId(),
                 client_id,
@@ -812,38 +830,37 @@ public class OAuthController {
 
     //
     //    /**
-    //     * Handle OAuth logout - clears session and redirects back to authorization
-    //     */
-    //    @PostMapping("/oauth2/logout")
-    //    public String oauthLogout(HttpServletRequest request) {
-    //        // Clear authentication session
-    //        request.getSession().removeAttribute("authenticated_user_id");
-    //        request.getSession().removeAttribute("authenticated_user_email");
-    //        request.getSession().removeAttribute("authenticated_user_name");
-    //        request.getSession().removeAttribute("firebase_token");
-    //
-    //        // Get stored OAuth authorization request to redirect back to authorization
-    //        AuthorizationRequest authRequest = (AuthorizationRequest) request.getSession().getAttribute("oauth2_auth_request");
-    //        if (authRequest != null) {
-    //            String redirectUrl = "/oauth2/authorize?response_type=code&client_id=" +
-    //                                authRequest.getClientId() + "&redirect_uri=" + authRequest.getRedirectUri() +
-    //                                "&scope=" + (authRequest.getScope() != null ? authRequest.getScope() : "read");
-    //            if (authRequest.getState() != null) {
-    //                redirectUrl += "&state=" + authRequest.getState();
-    //            }
-    //            if (authRequest.getCodeChallenge() != null) {
-    //                redirectUrl += "&code_challenge=" + authRequest.getCodeChallenge();
-    //            }
-    //            if (authRequest.getCodeChallengeMethod() != null) {
-    //                redirectUrl += "&code_challenge_method=" + authRequest.getCodeChallengeMethod();
-    //            }
-    //            return "redirect:" + redirectUrl;
-    //        }
-    //
-    //        return "redirect:/";
-    //    }
+    /**
+     * Handle OAuth logout - clears session and redirects back to authorization
+     */
+    @PostMapping("/oauth2/logout")
+    public String oauthLogout(HttpServletRequest request) {
+        // Clear authentication session
+        request.getSession().removeAttribute("authenticated_user_id");
+        request.getSession().removeAttribute("authenticated_user_email");
+        request.getSession().removeAttribute("authenticated_user_name");
+        request.getSession().removeAttribute("firebase_token");
 
-    // Helper methods
+        // Get stored OAuth authorization request to redirect back to authorization
+        AuthorizationRequest authRequest = (AuthorizationRequest) request.getSession().getAttribute("oauth2_auth_request");
+        if (authRequest != null) {
+            String redirectUrl = "/oauth2/authorize?response_type=code&client_id=" +
+                                authRequest.getClientId() + "&redirect_uri=" + authRequest.getRedirectUri() +
+                                "&scope=" + (authRequest.getScope() != null ? authRequest.getScope() : "read");
+            if (authRequest.getState() != null) {
+                redirectUrl += "&state=" + authRequest.getState();
+            }
+            if (authRequest.getCodeChallenge() != null) {
+                redirectUrl += "&code_challenge=" + authRequest.getCodeChallenge();
+            }
+            if (authRequest.getCodeChallengeMethod() != null) {
+                redirectUrl += "&code_challenge_method=" + authRequest.getCodeChallengeMethod();
+            }
+            return "redirect:" + redirectUrl;
+        }
+
+        return "redirect:/";
+    }    // Helper methods
 
     private String generateSecureToken() {
         byte[] bytes = new byte[32];
